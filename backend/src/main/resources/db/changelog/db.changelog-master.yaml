@@ -304,3 +304,167 @@ databaseChangeLog:
             columns:
               - column:
                   name: category_id
+
+  - changeSet:
+      id: 008-create-inventory
+      author: arto
+      changes:
+        - createTable:
+            tableName: inventory
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_inventory
+              - column:
+                  name: organization_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: DECIMAL(19,4)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: CURRENT_TIMESTAMP
+        - addForeignKeyConstraint:
+            baseTableName: inventory
+            baseColumnNames: organization_id
+            constraintName: fk_inventory_org
+            referencedTableName: organizations
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+        - addForeignKeyConstraint:
+            baseTableName: inventory
+            baseColumnNames: product_id
+            constraintName: fk_inventory_product
+            referencedTableName: products
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+        - addUniqueConstraint:
+            tableName: inventory
+            columnNames: organization_id, product_id
+            constraintName: uk_inventory_org_product
+        - createIndex:
+            tableName: inventory
+            indexName: idx_inventory_org
+            columns:
+              - column:
+                  name: organization_id
+        - createIndex:
+            tableName: inventory
+            indexName: idx_inventory_product
+            columns:
+              - column:
+                  name: product_id
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE inventory ADD CONSTRAINT chk_inventory_quantity_non_negative CHECK (quantity >= 0);
+
+  - changeSet:
+      id: 009-create-inventory-transactions
+      author: arto
+      changes:
+        - createTable:
+            tableName: inventory_transactions
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_inventory_transactions
+              - column:
+                  name: inventory_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: transaction_type
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity_change
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity_before
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity_after
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reference_id
+                  type: VARCHAR(100)
+              - column:
+                  name: notes
+                  type: VARCHAR(500)
+              - column:
+                  name: created_by
+                  type: UUID
+              - column:
+                  name: created_at
+                  type: TIMESTAMPTZ
+                  defaultValueComputed: CURRENT_TIMESTAMP
+        - addForeignKeyConstraint:
+            baseTableName: inventory_transactions
+            baseColumnNames: inventory_id
+            constraintName: fk_inventory_trans_inventory
+            referencedTableName: inventory
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+        - addForeignKeyConstraint:
+            baseTableName: inventory_transactions
+            baseColumnNames: created_by
+            constraintName: fk_inventory_trans_user
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: SET NULL
+            onUpdate: RESTRICT
+        - createIndex:
+            tableName: inventory_transactions
+            indexName: idx_inventory_trans_inventory
+            columns:
+              - column:
+                  name: inventory_id
+        - createIndex:
+            tableName: inventory_transactions
+            indexName: idx_inventory_trans_created_at
+            columns:
+              - column:
+                  name: created_at
+        - createIndex:
+            tableName: inventory_transactions
+            indexName: idx_inventory_trans_type
+            columns:
+              - column:
+                  name: transaction_type
+        - sql:
+            dbms: postgresql
+            sql: ALTER TABLE inventory_transactions ADD CONSTRAINT chk_inventory_trans_type CHECK (transaction_type IN ('SALE', 'PURCHASE', 'ADJUSTMENT', 'RETURN', 'TRANSFER_IN', 'TRANSFER_OUT', 'INITIAL'));
