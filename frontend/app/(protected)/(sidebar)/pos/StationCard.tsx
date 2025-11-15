@@ -36,19 +36,19 @@ export function StationCard({
   const router = useRouter();
 
   return (
-    <div className="bg-card p-4 sm:p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow w-full">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1 min-w-0 pr-2">
+    <div className="bg-card p-4 sm:p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow w-full max-w-full overflow-hidden">
+      <div className="flex items-start justify-between mb-3 gap-2">
+        <div className="flex-1 min-w-0">
           <h3 className="text-xl font-bold text-gray-100 mb-1 truncate">
             {station.name}
           </h3>
           {station.description && (
-            <p className="text-sm text-gray-400 line-clamp-2">
+            <p className="text-sm text-gray-400 line-clamp-2 break-words">
               {station.description}
             </p>
           )}
         </div>
-        <Store className="w-5 h-5 text-blue-400 flex-shrink-0 ml-2" />
+        <Store className="w-5 h-5 text-blue-400 flex-shrink-0" />
       </div>
 
       {station.assignedUsers && station.assignedUsers.length > 0 && (
@@ -58,7 +58,7 @@ export function StationCard({
             {station.assignedUsers.slice(0, 3).map((user: User) => (
               <span
                 key={user.id}
-                className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded"
+                className="text-xs px-2 py-1 bg-gray-700 text-gray-300 rounded truncate max-w-full"
               >
                 {user.name || user.email}
               </span>
@@ -72,16 +72,16 @@ export function StationCard({
         </div>
       )}
 
-      <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+      <div className="flex flex-col sm:flex-row gap-2">
         <Button
           onClick={() => router.push(`/pos/${station.id}`)}
-          className="flex-1 min-w-0 bg-green-600 hover:bg-green-700"
+          className="flex-1 w-full sm:w-auto bg-green-600 hover:bg-green-700 min-w-0"
         >
           <span className="truncate">Open Station</span>
         </Button>
 
         {isAdmin && (
-          <>
+          <div className="flex gap-2 flex-shrink-0">
             <StationDialog
               mode="edit"
               station={station}
@@ -116,7 +116,7 @@ export function StationCard({
             >
               <Trash2 className="w-4 h-4" />
             </Button>
-          </>
+          </div>
         )}
       </div>
     </div>

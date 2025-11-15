@@ -57,7 +57,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild size="lg">
+                  <SidebarMenuButton asChild size="lg" tooltip={item.title}>
                     <a href={item.url} className="flex items-center">
                       <item.icon className="!w-5 !h-5" />
                       <span className="text-lg font-medium">{item.title}</span>
@@ -72,7 +72,7 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" onClick={handleLogout}>
+            <SidebarMenuButton size="lg" onClick={handleLogout} tooltip="Logout">
               <LogOut className="!w-5 !h-5" />
               <span className="text-lg font-medium">Logout</span>
             </SidebarMenuButton>
