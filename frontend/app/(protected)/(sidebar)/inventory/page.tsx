@@ -430,7 +430,6 @@ export default function Inventory() {
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto">
         <div className="rounded-lg bg-card p-6 shadow-sm mb-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
@@ -609,7 +608,6 @@ export default function Inventory() {
             </table>
           </div>
         </div>
-      </div>
 
       <Dialog
         open={showCreateProductModal}
