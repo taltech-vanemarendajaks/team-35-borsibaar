@@ -124,7 +124,7 @@ export default function ClientProductsByCategory() {
             </h2>
           </div>
 
-          <div className="columns-1 min-[1800px]:!columns-2 gap-4 min-[1800px]:max-h-[90vh]" style={{ "columnFill": "auto" }}>
+          <div className="products-scroll grid grid-cols-1 min-[1800px]:grid-cols-2 gap-4 max-h-[90vh] overflow-auto">
             {loading && !totalItems && (
               <div className="col-span-full flex h-40 items-center justify-center text-lg text-[#a7a3c7]">
                 Loading…
@@ -138,7 +138,7 @@ export default function ClientProductsByCategory() {
                 return (
                   <div
                     key={c.id}
-                    className="rounded-2xl bg-[#201c31] border border-[#2a2640] p-3 w-full [&:not(:first-child)]:mt-4"
+                    className="rounded-2xl bg-[#201c31] border border-[#2a2640] p-3 w-full"
                   >
                     <div className="mb-2 flex items-center justify-between break-inside-avoid">
                       <div className="flex items-center gap-2">
