@@ -5,6 +5,7 @@ import com.borsibaar.dto.CategoryResponseDto;
 import com.borsibaar.entity.User;
 import com.borsibaar.service.CategoryService;
 import com.borsibaar.util.SecurityUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class CategoryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryResponseDto createCategory(@RequestBody CategoryRequestDto request) {
+    public CategoryResponseDto createCategory(@RequestBody @Valid CategoryRequestDto request) {
         User user = SecurityUtils.getCurrentUser();
         return categoryService.create(request, user.getOrganizationId());
     }
