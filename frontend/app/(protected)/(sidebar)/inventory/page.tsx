@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import {useState, useEffect, useMemo} from "react";
 import {
   AlertCircle,
   Edit,
@@ -49,8 +49,11 @@ import { Button } from "@/components/ui/button";
 export const dynamic = "force-dynamic";
 
 export default function Inventory() {
+  type SortDirection = "asc" | "desc" | null;
+
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [minPriceSort, setMinPriceSort] = useState<SortDirection>(null);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -113,6 +116,31 @@ export default function Inventory() {
       setLoading(false);
     }
   };
+
+  const displayedProducts = useMemo(() => {
+    let result = inventory;
+
+    if (searchTerm?.trim()) {
+      result = result.filter(item =>
+        item.productName
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (minPriceSort) {
+      result = [...result].sort((a, b) => {
+        const aVal = a.minPrice ?? 0;
+        const bVal = b.minPrice ?? 0;
+
+        return minPriceSort == "asc"
+            ? aVal - bVal
+            : bVal - aVal
+          });
+    }
+
+    return result;
+  }, [inventory, searchTerm, minPriceSort]);
 
   const fetchCategories = async () => {
     try {
@@ -476,7 +504,6 @@ export default function Inventory() {
               className="w-full pl-10 pr-4 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -487,8 +514,17 @@ export default function Inventory() {
                   <th className="text-left py-3 px-4 font-semibold text-gray-300">
                     Current Price
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-300">
-                    Min Price
+                  <th
+                      onClick={() => setMinPriceSort(prev =>
+                          prev=== "asc" ? "desc" : "asc"
+                        )
+                      }
+                      className="text-left py-3 px-4 font-semibold text-gray-300"
+                  >
+                    Min Price{" "}
+                    {minPriceSort === "asc" && "▲"}
+                    {minPriceSort === "desc" && "▼"}
+                    {minPriceSort === null && "▼"}
                   </th>
                   <th className="text-left py-3 px-4 font-semibold text-gray-300">
                     Max Price
@@ -515,7 +551,7 @@ export default function Inventory() {
                     </td>
                   </tr>
                 ) : (
-                  filteredInventory.map((item) => {
+                    displayedProducts.map((item) => {
                     // @ts-expect-error: types aren't imported currently from backend
                     const status = getStockStatus(item.quantity);
                     return (
@@ -537,9 +573,9 @@ export default function Inventory() {
                           </span>
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <span className="text-lg text-gray-300">
-                            {isNaN(parseFloat(item.minPrice)) ? "--" : parseFloat(item.minPrice).toFixed(2)}€
-                          </span>
+                            <span className="text-lg text-gray-300">
+                              {isNaN(parseFloat(item.minPrice)) ? "--" : parseFloat(item.minPrice).toFixed(2)}€
+                            </span>
                         </td>
                         <td className="py-3 px-4 text-center">
                           <span className="text-lg text-gray-300">
