@@ -1,5 +1,5 @@
 # Borsibaar Application Test Plan
-
+Conflict A
 **Document Version**: 1.0
 **Date**: 2026-02-01
 **Project**: Borsibaar - Stock Exchange Bar Management System
