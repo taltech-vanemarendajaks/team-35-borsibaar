@@ -1,6 +1,6 @@
 team name: team-35
 
-Conflict B
+team members:
 
 JuliaT - juliataro
 
