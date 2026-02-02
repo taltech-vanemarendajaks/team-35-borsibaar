@@ -50,10 +50,17 @@ export const dynamic = "force-dynamic";
 
 export default function Inventory() {
   type SortDirection = "asc" | "desc" | null;
+  type SortKey = "productName" | "basePrice" | "minPrice" | "maxPrice" | "quantity" | null;
 
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [minPriceSort, setMinPriceSort] = useState<SortDirection>(null);
+  const [sortConfig, setSortConfig] = useState<{
+    key: SortKey;
+    direction: SortDirection;
+  }>({
+    key: null,
+    direction: "asc",
+  });
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -128,19 +135,34 @@ export default function Inventory() {
       );
     }
 
-    if (minPriceSort) {
+    if (sortConfig.key) {
       result = [...result].sort((a, b) => {
-        const aVal = a.minPrice ?? 0;
-        const bVal = b.minPrice ?? 0;
+        const aVal = a[sortConfig.key] ?? 0;
+        const bVal = b[sortConfig.key] ?? 0;
 
-        return minPriceSort == "asc"
-            ? aVal - bVal
-            : bVal - aVal
+        if(typeof aVal === "number" && typeof bVal === "number") {
+          return sortConfig.direction === "asc"
+                ? (aVal ?? 0) - (bVal ?? 0)
+                : (bVal ?? 0) - (aVal ?? 0);
+        }
+
+        return sortConfig.direction === "asc"
+            ? String(aVal).localeCompare(String(bVal))
+            : String(bVal).localeCompare(String(aVal));
           });
     }
-
     return result;
-  }, [inventory, searchTerm, minPriceSort]);
+  }, [inventory, searchTerm, sortConfig]);
+
+  const handleSort = (key: SortKey) => {
+    setSortConfig(prev => ({
+      key,
+      direction:
+          prev.key === key && prev.direction === "asc"
+              ? "desc"
+              : "asc",
+    }));
+  };
 
   const fetchCategories = async () => {
     try {
@@ -508,29 +530,60 @@ export default function Inventory() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-400">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-300">
-                    Product
-                  </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-300">
-                    Current Price
+                  <th
+                      onClick={() => handleSort("productName")}
+                      className="text-left py-3 px-4 font-semibold text-gray-300"
+                  >
+                    Product{" "}
+                    {sortConfig.key === "productName"
+                        ? sortConfig.direction === "asc"
+                            ? "▲"
+                            : "▼"
+                        : "▼"}
                   </th>
                   <th
-                      onClick={() => setMinPriceSort(prev =>
-                          prev=== "asc" ? "desc" : "asc"
-                        )
-                      }
+                      onClick={() => handleSort("basePrice")}
+                      className="text-left py-3 px-4 font-semibold text-gray-300"
+                  >
+                    Current Price{" "}
+                    {sortConfig.key === "basePrice"
+                        ? sortConfig.direction === "asc"
+                            ? "▲"
+                            : "▼"
+                        : "▼"}
+                  </th>
+                  <th
+                      onClick={() => handleSort("minPrice")}
                       className="text-left py-3 px-4 font-semibold text-gray-300"
                   >
                     Min Price{" "}
-                    {minPriceSort === "asc" && "▲"}
-                    {minPriceSort === "desc" && "▼"}
-                    {minPriceSort === null && "▼"}
+                    {sortConfig.key === "minPrice"
+                    ? sortConfig.direction === "asc"
+                        ? "▲"
+                        : "▼"
+                    : "▼"}
                   </th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-300">
-                    Max Price
+                  <th
+                      onClick={() => handleSort("maxPrice")}
+                      className="text-left py-3 px-4 font-semibold text-gray-300"
+                  >
+                    Max Price{" "}
+                    {sortConfig.key === "maxPrice"
+                        ? sortConfig.direction === "asc"
+                            ? "▲"
+                            : "▼"
+                        : "▼"}
                   </th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-300">
-                    Quantity
+                  <th
+                      onClick={() => handleSort("quantity")}
+                      className="text-center py-3 px-4 font-semibold text-gray-300"
+                  >
+                    Quantity{" "}
+                    {sortConfig.key === "quantity"
+                        ? sortConfig.direction === "asc"
+                            ? "▲"
+                            : "▼"
+                        : "▼"}
                   </th>
                   <th className="text-center py-3 px-4 font-semibold text-gray-300">
                     Status
