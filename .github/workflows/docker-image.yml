@@ -43,11 +43,12 @@ jobs:
         working-directory: frontend
         run: npm run build
 
+      # FIXED: using id_ed25519 instead of id_rsa
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan "$SERVER_IP" >> ~/.ssh/known_hosts
 
       - name: Create .env.production from secret
@@ -70,16 +71,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y sshpass openssh-client
 
+      # FIXED: updated key filename
       - name: Copy deployment package to server
         run: |
-          scp -i ~/.ssh/id_rsa \
+          scp -i ~/.ssh/id_ed25519
             -o StrictHostKeyChecking=yes \
             deployment.tar.gz \
             "$SSH_USER@$SERVER_IP:/tmp/"
 
+      # FIXED: updated key filename
       - name: Deploy on server
         run: |
-          ssh -i ~/.ssh/id_rsa \
+          ssh -i ~/.ssh/id_ed25519 \
             -o StrictHostKeyChecking=yes \
             "$SSH_USER@$SERVER_IP" << EOF
           set -e
