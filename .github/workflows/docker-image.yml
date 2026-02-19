@@ -86,7 +86,7 @@ jobs:
       # FIXED: updated key filename
       - name: Copy deployment package to server
         run: |
-          scp -i ~/.ssh/id_ed25519
+          scp -i ~/.ssh/id_ed25519 \
             -o StrictHostKeyChecking=yes \
             deployment.tar.gz \
             "$SSH_USER@$SERVER_IP:/tmp/"
