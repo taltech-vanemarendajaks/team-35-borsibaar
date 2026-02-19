@@ -65,6 +65,18 @@ jobs:
             backend/Dockerfile \
             frontend/Dockerfile \
             .env.production
+          
+          
+
+      - name: Debug - list files
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files:"
+          ls -la
+          echo "Check tar file:"
+          ls -lh deployment.tar.gz || echo "Tar file missing"
+          
 
       - name: Install sshpass and openssh-client
         run: |
